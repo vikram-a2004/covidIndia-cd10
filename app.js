@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 
 const dbPath = path.join(__dirname, 'covid19IndiaPortal.db')
 const app = express()
-app.use(express.json())
+app.use(express.json());
 
 let db = null
 //initializiDbServer
@@ -59,7 +59,7 @@ const authenticationToken = (request, response, next) => {
 
 //API-2
 // get all State
-app.get('/states', async (request, response) => {
+app.get('/states', authenticationToken, async (request, response) => {
   //console.log('Get State  APIs')
   // verifying jwtToken
   const selectDistrictQuery = `SELECT * FROM state;`
@@ -98,7 +98,7 @@ app.post('/login', async (request, response) => {
   const selectUserQuery = `SELECT * FROM user WHERE username = '${username}';`
   const dbUser = await db.get(selectUserQuery)
   if (dbUser === undefined) {
-    response.status(400).send('Invalid User')
+    response.status(400).send('Invalid user')
   } else {
     const ispasswordMatch = await bcrypt.compare(password, dbUser.password)
     if (ispasswordMatch === true) {
@@ -179,7 +179,7 @@ app.get(
   `
     const getDistrictId = await db.get(getdistrictByIdQuery, [districtId])
     response.send(convertDBResponseObject1(getDistrictId))
-  }
+  },
 )
 
 // API-6 DELETE
@@ -196,7 +196,7 @@ app.delete(
     const deleteUpdate = await db.run(deleteQuery, [districtId])
     const updateQuery = convertResponseObject(deleteUpdate)
     response.send('District Removed')
-  }
+  },
 )
 
 //API-7 PUT
@@ -210,13 +210,13 @@ app.put(
 
     const updateQuery = `
     UPDATE district
-    SET (
+    SET 
       district_name = ?, 
       state_id = ?, 
       cases = ?, 
       cured = ?, 
       active = ?, 
-      deaths = ? )
+      deaths = ? 
     WHERE district_id=?;
   `
     await db.run(updateQuery, [
@@ -230,7 +230,7 @@ app.put(
     ])
     //const convertedDistrict = specificDistrict(getUpdatedId)
     response.send('District Details Updated')
-  }
+  },
 )
 
 //API-8 get
@@ -261,7 +261,7 @@ app.get(
   `
     const getsumData = await db.get(sumOfTotalQuery, [stateId])
     response.send(statisticsOfTatolCases(getsumData))
-  }
+  },
 )
 
 module.exports = app
